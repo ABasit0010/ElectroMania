@@ -994,12 +994,14 @@
       : SEMESTERS.filter(s => s.year === activeYear);
   }
 
-  function render(list, showYT = false) {
+  function render(list, showYT = false, showVLab = false) {
     const grid  = document.getElementById('grid');
     const noRes = document.getElementById('noRes');
     const cardsHTML = list.map(buildCard).join('');
-    grid.innerHTML = cardsHTML + (showYT ? buildYTCard() : '');
-    noRes.classList.toggle('show', list.length === 0 && !showYT);
+    grid.innerHTML = cardsHTML
+      + (showYT   ? buildYTCard()   : '')
+      + (showVLab ? buildVLabCard() : '');
+    noRes.classList.toggle('show', list.length === 0 && !showYT && !showVLab);
   }
 
   function doSearch(q) {
@@ -1009,10 +1011,11 @@
       ? base.filter(s => `semester ${s.id} year ${s.year} ${s.subjects.join(' ')}`.toLowerCase().includes(q))
       : base;
 
-    const isAllYears = activeYear === 'all';
-    const ytMatches  = !q || 'youtube lectures ceme video channel'.includes(q);
+    const isAllYears  = activeYear === 'all';
+    const ytMatches   = !q || 'youtube lectures ceme video channel'.includes(q);
+    const vlabMatches = !q || 'virtual lab virtual labs vlab experiments simulations electronics communications'.includes(q);
 
-    render(filtered, isAllYears && ytMatches);
+    render(filtered, isAllYears && ytMatches, isAllYears && vlabMatches);
   }
 
   function byYear(btn, yr) {
@@ -1020,7 +1023,8 @@
     btn.classList.add('on');
     activeYear = yr === 'all' ? 'all' : Number(yr);
     document.getElementById('searchInput').value = '';
-    render(getBase(), activeYear === 'all');
+    const all = activeYear === 'all';
+    render(getBase(), all, all);
   }
   /* ── YouTube modal ───────────────────────────────────────── */
   function openYTModal()  { document.getElementById('ytModal').classList.add('on');    document.body.style.overflow='hidden'; }
@@ -1063,6 +1067,52 @@
       </div>
     </div>`;
   }
+
+  /* ── Virtual Lab card ────────────────────────────────────── */
+  const VLAB_URL = "https://www.vlab.co.in/broad-area-electronics-and-communications";
+
+  function buildVLabCard() {
+    const c = "#b388ff";
+    return `
+    <div class="sem-card" style="cursor:pointer;"
+         onclick="window.open('${VLAB_URL}','_blank','noopener')">
+      <div class="sem-banner"
+           style="--c:${c};background:linear-gradient(135deg,${c}14 0%,${c}07 100%);">
+        <span class="sem-emoji">🧪</span>
+        <h3 class="sem-num" style="color:${c};">Virtual Labs</h3>
+        <span class="yr-badge"
+              style="color:${c};background:${c}18;border:1px solid ${c}30;">
+          Online Lab
+        </span>
+      </div>
+      <div class="sem-body">
+        <div>
+          <div class="subj-lbl">Practice online</div>
+          <div class="subj-tags">
+            <span class="subj-tag">Electronics</span>
+            <span class="subj-tag">Communications</span>
+            <span class="subj-tag">Simulations</span>
+          </div>
+          <div class="subj-count">Electronics &amp; Communications labs</div>
+        </div>
+        <a class="dl-sem-btn"
+           href="${VLAB_URL}"
+           target="_blank" rel="noopener noreferrer"
+           onclick="event.stopPropagation()"
+           style="background:${c};color:#000;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2.5"
+               stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+            <polyline points="15 3 21 3 21 9"/>
+            <line x1="10" y1="14" x2="21" y2="3"/>
+          </svg>
+          Open Virtual Labs
+        </a>
+      </div>
+    </div>`;
+  }
+
   /* ── modal ──────────────────────────────────────────────── */
   function openModal()  { document.getElementById('modal').classList.add('on');  document.body.style.overflow='hidden'; }
   function closeModal() { document.getElementById('modal').classList.remove('on'); document.body.style.overflow=''; }
@@ -1071,7 +1121,7 @@
   function handleSubmit(e) {
     e.preventDefault();
     const btn = document.getElementById('submitBtn');
-    btn.textContent = '✅  Submitted — Awaiting Review';
+    btn.textContent = 'Submitted — Awaiting Review';
     btn.classList.add('done');
     btn.disabled = true;
     setTimeout(() => {
@@ -1085,7 +1135,7 @@
   document.addEventListener('DOMContentLoaded', () => {
     const total = SEMESTERS.reduce((t, s) => t + s.subjects.length, 0);
     document.getElementById('statSubjects').textContent = total;
-    render(SEMESTERS, true);
+    render(SEMESTERS, true, true);
   });
   </script>
 
