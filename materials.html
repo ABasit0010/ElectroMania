@@ -984,15 +984,16 @@
       : SEMESTERS.filter(s => s.year === activeYear);
   }
 
-  function render(list, showYT = false, showVLab = false, showBook = false) {
+  function render(list, showYT = false, showVLab = false, showBook = false, showKiCad = false) {
     const grid  = document.getElementById('grid');
     const noRes = document.getElementById('noRes');
     const cardsHTML = list.map(buildCard).join('');
     grid.innerHTML = cardsHTML
-      + (showYT   ? buildYTCard()   : '')
-      + (showVLab ? buildVLabCard() : '')
-      + (showBook ? buildBookCard() : '');
-    noRes.classList.toggle('show', list.length === 0 && !showYT && !showVLab && !showBook);
+      + (showYT    ? buildYTCard()    : '')
+      + (showVLab  ? buildVLabCard()  : '')
+      + (showBook  ? buildBookCard()  : '')
+      + (showKiCad ? buildKiCadCard() : '');
+    noRes.classList.toggle('show', list.length === 0 && !showYT && !showVLab && !showBook && !showKiCad);
   }
 
   function doSearch(q) {
@@ -1005,9 +1006,10 @@
     const isAllYears  = activeYear === 'all';
     const ytMatches   = !q || 'youtube lectures ceme video channel'.includes(q);
     const vlabMatches = !q || 'virtual lab virtual labs vlab experiments simulations electronics communications'.includes(q);
-    const bookMatches = !q || 'embedded learning book pdf ebook download microcontroller'.includes(q);
+    const bookMatches  = !q || 'embedded learning book pdf ebook download microcontroller'.includes(q);
+    const kicadMatches = !q || 'kicad pcb design guide book pdf ebook download layout schematic abdul basit'.includes(q);
 
-    render(filtered, isAllYears && ytMatches, isAllYears && vlabMatches, isAllYears && bookMatches);
+    render(filtered, isAllYears && ytMatches, isAllYears && vlabMatches, isAllYears && bookMatches, isAllYears && kicadMatches);
   }
 
   function byYear(btn, yr) {
@@ -1016,7 +1018,7 @@
     activeYear = yr === 'all' ? 'all' : Number(yr);
     document.getElementById('searchInput').value = '';
     const all = activeYear === 'all';
-    render(getBase(), all, all, all);
+    render(getBase(), all, all, all, all);
   }
   /* ── YouTube modal ───────────────────────────────────────── */
   function openYTModal()  { document.getElementById('ytModal').classList.add('on');    document.body.style.overflow='hidden'; }
@@ -1157,6 +1159,58 @@
     </div>`;
   }
 
+  /* ── KiCad PCB Design Guide card ─────────────────────────── */
+  const KICAD_FILE = "KiCad_PCB_Design_Guide_Engr_Abdul_Basit.pdf";   // <-- must match your PDF's exact file name
+
+  function downloadKiCad() {
+    const a = document.createElement('a');
+    a.href = KICAD_FILE;
+    a.download = KICAD_FILE;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  }
+
+  function buildKiCadCard() {
+    const c = "#26c6da";
+    return `
+    <div class="sem-card" style="cursor:pointer;" onclick="downloadKiCad()">
+      <div class="sem-banner"
+           style="--c:${c};background:linear-gradient(135deg,${c}14 0%,${c}07 100%);">
+        <span class="sem-emoji">🧩</span>
+        <h3 class="sem-num" style="color:${c};">KiCad PCB Design Guide</h3>
+        <span class="yr-badge"
+              style="color:${c};background:${c}18;border:1px solid ${c}30;">
+          PDF
+        </span>
+      </div>
+      <div class="sem-body">
+        <div>
+          <div class="subj-lbl">Free e-book</div>
+          <div class="subj-tags">
+            <span class="subj-tag">KiCad</span>
+            <span class="subj-tag">PCB Design</span>
+            <span class="subj-tag">By Engr. Abdul Basit</span>
+          </div>
+          <div class="subj-count">Download as PDF</div>
+        </div>
+        <a class="dl-sem-btn"
+           href="${KICAD_FILE}" download
+           onclick="event.stopPropagation()"
+           style="background:${c};color:#000;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2.5"
+               stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          Download Guide
+        </a>
+      </div>
+    </div>`;
+  }
+
   /* ── modal ──────────────────────────────────────────────── */
   function openModal()  { document.getElementById('modal').classList.add('on');  document.body.style.overflow='hidden'; }
   function closeModal() { document.getElementById('modal').classList.remove('on'); document.body.style.overflow=''; }
@@ -1179,7 +1233,7 @@
   document.addEventListener('DOMContentLoaded', () => {
     const total = SEMESTERS.reduce((t, s) => t + s.subjects.length, 0);
     document.getElementById('statSubjects').textContent = total;
-    render(SEMESTERS, true, true, true);
+    render(SEMESTERS, true, true, true, true);
   });
   </script>
 
